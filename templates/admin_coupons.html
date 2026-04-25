@@ -1,0 +1,106 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+
+<div class="space-y-6">
+  <section class="relative overflow-hidden rounded-[30px] border border-white/60 bg-[linear-gradient(135deg,#111827_0%,#7c3aed_50%,#ec4899_100%)] p-6 text-white shadow-[0_30px_80px_rgba(17,24,39,0.18)] sm:p-8">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.12),transparent_24%)]"></div>
+    <div class="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <div class="max-w-2xl">
+        <p class="text-sm font-semibold uppercase tracking-[0.22em] text-fuchsia-100">Admin Discounts</p>
+        <h1 class="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Create promo codes that feel intentional, not improvised.</h1>
+        <p class="mt-3 max-w-xl text-sm leading-7 text-fuchsia-50/90 sm:text-base">
+          Launch offers, seasonal discounts, and welcome codes from one page with a cleaner view of what is active.
+        </p>
+      </div>
+
+      <div class="rounded-3xl border border-white/20 bg-white/10 px-5 py-4 backdrop-blur">
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-fuchsia-100">Total Coupons</p>
+        <p class="mt-2 text-4xl font-black">{{ total_coupons }}</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+    <section class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur">
+      <div class="mb-5">
+        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-fuchsia-700">Create Offer</p>
+        <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">New coupon</h2>
+        <p class="mt-2 text-sm leading-6 text-slate-600">Use short codes that are easy to type and easy to remember.</p>
+      </div>
+
+      <form method="POST" action="/admin/add_coupon" class="space-y-4">
+        <label class="block">
+          <span class="mb-2 block text-sm font-semibold text-slate-700">Coupon code</span>
+          <input name="code" required placeholder="WELCOME10"
+            class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-fuchsia-400 focus:bg-white focus:ring-4 focus:ring-fuchsia-100">
+        </label>
+
+        <label class="block">
+          <span class="mb-2 block text-sm font-semibold text-slate-700">Discount percentage</span>
+          <input name="discount" type="number" min="1" max="100" required placeholder="10"
+            class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-fuchsia-400 focus:bg-white focus:ring-4 focus:ring-fuchsia-100">
+        </label>
+
+        <div class="rounded-2xl border border-fuchsia-100 bg-fuchsia-50 px-4 py-3 text-sm text-fuchsia-700">
+          Tip: keep codes uppercase and short so checkout feels fast on mobile too.
+        </div>
+
+        <button class="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-fuchsia-600 to-violet-700 px-5 text-sm font-bold text-white shadow-lg shadow-fuchsia-200 transition hover:from-fuchsia-700 hover:to-violet-800">
+          Create Coupon
+        </button>
+      </form>
+    </section>
+
+    <section class="rounded-[28px] border border-white/70 bg-white/90 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur">
+      <div class="flex flex-col gap-3 border-b border-slate-100 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-[0.16em] text-fuchsia-700">Active List</p>
+          <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Coupons</h2>
+        </div>
+        <span class="rounded-full bg-fuchsia-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-fuchsia-700">{{ total_coupons }} total</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[600px] text-left">
+          <thead>
+            <tr class="border-b border-slate-100 text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
+              <th class="px-6 py-4">Code</th>
+              <th class="px-6 py-4">Discount</th>
+              <th class="px-6 py-4">Created</th>
+              <th class="px-6 py-4 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {% for coupon in coupons %}
+              <tr class="transition hover:bg-slate-50/90">
+                <td class="px-6 py-4">
+                  <span class="inline-flex rounded-2xl bg-fuchsia-50 px-3 py-2 text-sm font-black text-fuchsia-700">{{ coupon.code }}</span>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="text-sm font-bold text-slate-900">{{ coupon.discount }}%</span>
+                </td>
+                <td class="px-6 py-4 text-sm text-slate-500">{{ coupon.created_at.strftime('%d %b %Y') if coupon.created_at else 'N/A' }}</td>
+                <td class="px-6 py-4 text-right">
+                  <a href="/admin/delete_coupon/{{ coupon._id }}" onclick="return confirm('Delete this coupon?')"
+                    class="inline-flex h-10 items-center justify-center rounded-2xl border border-rose-200 px-4 text-xs font-bold uppercase tracking-[0.14em] text-rose-600 transition hover:bg-rose-50">
+                    Delete
+                  </a>
+                </td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="4" class="px-6 py-12 text-center">
+                  <p class="text-lg font-bold text-slate-900">No coupons created yet</p>
+                  <p class="mt-2 text-sm text-slate-500">Create your first promo code to unlock discount checkout for users.</p>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,472 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+
+<div class="min-h-screen">
+  <div class="flex">
+    <aside id="adminSidebar" class="fixed inset-y-0 left-0 z-50 w-72 -translate-x-full border-r border-white/60 bg-white/90 shadow-xl shadow-sky-100/60 backdrop-blur transition-all duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0">
+      <div class="flex h-20 items-center justify-between border-b border-slate-200 px-5">
+        <div class="sidebar-label">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-sky-700">Admin Suite</p>
+          <h2 class="mt-1 text-xl font-black tracking-tight text-slate-950">Control Center</h2>
+        </div>
+        <button id="collapseSidebar" class="hidden rounded-2xl p-2 text-slate-500 transition hover:bg-slate-100 lg:block" type="button" aria-label="Collapse sidebar">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button id="closeSidebar" class="rounded-2xl p-2 text-slate-500 transition hover:bg-slate-100 lg:hidden" type="button" aria-label="Close sidebar">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <nav class="space-y-2 p-4 text-sm font-semibold text-slate-700">
+        <a href="/admin" class="flex items-center gap-3 rounded-2xl bg-sky-50 px-4 py-3 text-sky-700 transition hover:bg-sky-100">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13h8V3H3v10Zm10 8h8V3h-8v18ZM3 21h8v-6H3v6Z"/></svg>
+          <span class="sidebar-label">Dashboard</span>
+        </a>
+        <a href="#books" class="flex items-center gap-3 rounded-2xl px-4 py-3 transition hover:bg-slate-100 hover:text-slate-950">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15Z"/></svg>
+          <span class="sidebar-label">Books</span>
+        </a>
+        <a href="/admin/taxonomy" class="flex items-center gap-3 rounded-2xl px-4 py-3 transition hover:bg-slate-100 hover:text-slate-950">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+          <span class="sidebar-label">Classes</span>
+        </a>
+        <a href="/admin/coupons" class="flex items-center gap-3 rounded-2xl px-4 py-3 transition hover:bg-slate-100 hover:text-slate-950">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5A2.5 2.5 0 1 1 10 4.5C10 7 12 7 12 7Zm0 0h4.5A2.5 2.5 0 1 0 14 4.5C14 7 12 7 12 7Z"/></svg>
+          <span class="sidebar-label">Coupons</span>
+        </a>
+      </nav>
+
+      <div class="absolute bottom-0 left-0 right-0 border-t border-slate-200 p-4">
+        <a href="/admin/upload" class="flex h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-700 px-4 text-sm font-bold text-white shadow-lg shadow-sky-200 transition hover:from-sky-700 hover:to-blue-800">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <span class="sidebar-label">Upload Book</span>
+        </a>
+      </div>
+    </aside>
+
+    <div id="sidebarBackdrop" class="fixed inset-0 z-40 hidden bg-slate-950/40 lg:hidden"></div>
+
+    <div class="min-w-0 flex-1">
+      <header class="sticky top-0 z-30 border-b border-white/60 bg-white/80 backdrop-blur">
+        <div class="flex flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+          <div class="flex items-center gap-3">
+            <button id="openSidebar" class="rounded-2xl border border-slate-200 bg-white p-2 text-slate-600 shadow-sm transition hover:bg-slate-50 lg:hidden" type="button" aria-label="Open sidebar">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <div>
+              <p class="text-sm font-semibold uppercase tracking-[0.16em] text-sky-700">Book Platform</p>
+              <h1 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Admin Dashboard</h1>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <a href="/" class="inline-flex h-11 items-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50">View Store</a>
+            <a href="/admin/taxonomy" class="inline-flex h-11 items-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50">Classes</a>
+            <a href="/admin/coupons" class="inline-flex h-11 items-center rounded-2xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50">Coupons</a>
+            <a href="/admin/upload" class="inline-flex h-11 items-center rounded-2xl bg-gradient-to-r from-sky-600 to-blue-700 px-4 text-sm font-bold text-white shadow-lg shadow-sky-200 transition hover:from-sky-700 hover:to-blue-800">Upload</a>
+            <a href="/admin/logout" class="inline-flex h-11 items-center rounded-2xl bg-slate-950 px-4 text-sm font-bold text-white transition hover:bg-slate-800">Logout</a>
+          </div>
+        </div>
+      </header>
+
+      <main class="px-4 py-6 sm:px-6 lg:px-8">
+        <section class="relative overflow-hidden rounded-[32px] border border-white/80 bg-slate-950 shadow-2xl shadow-sky-100/70">
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.30),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(34,197,94,0.18),transparent_22%)]"></div>
+          <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1400&q=80"
+            alt="Admin workspace"
+            class="absolute inset-0 h-full w-full object-cover opacity-20">
+          <div class="absolute inset-0 bg-slate-950/55"></div>
+
+          <div class="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.05fr_0.95fr] lg:p-10">
+            <div class="max-w-2xl">
+              <span class="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-sky-200 backdrop-blur">
+                Operations
+              </span>
+              <h2 class="mt-5 text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl">
+                Run your bookstore like a clean little SaaS dashboard.
+              </h2>
+              <p class="mt-5 max-w-xl text-sm leading-7 text-slate-200 sm:text-base">
+                Watch your catalog, edit books fast, and keep classes, categories, and coupons under control without digging through clunky forms.
+              </p>
+            </div>
+
+            <div id="dashboardSkeleton" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
+              {% for i in range(4) %}
+                <div class="h-32 animate-pulse rounded-3xl border border-white/12 bg-white/10 p-5 backdrop-blur">
+                  <div class="h-4 w-24 rounded bg-white/20"></div>
+                  <div class="mt-8 h-8 w-20 rounded bg-white/20"></div>
+                </div>
+              {% endfor %}
+            </div>
+
+            <div id="dashboardContent" class="hidden grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
+              <div class="rounded-3xl border border-white/12 bg-white/10 p-5 backdrop-blur">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-sky-200">Total Books</p>
+                <p class="mt-3 text-4xl font-black text-white">{{ total_books }}</p>
+              </div>
+              <div class="rounded-3xl border border-white/12 bg-white/10 p-5 backdrop-blur">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200">Sales</p>
+                <p class="mt-3 text-4xl font-black text-white">{{ total_sales }}</p>
+              </div>
+              <div class="rounded-3xl border border-white/12 bg-white/10 p-5 backdrop-blur">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200">Revenue</p>
+                <p class="mt-3 text-4xl font-black text-white">&#8377;{{ revenue }}</p>
+              </div>
+              <div class="rounded-3xl border border-white/12 bg-white/10 p-5 backdrop-blur">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">Live Users</p>
+                <p class="mt-3 text-4xl font-black text-white">{{ live_users }}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="mt-6 grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
+          <section id="books" class="rounded-[28px] border border-slate-200 bg-white/90 shadow-xl shadow-slate-100/70 backdrop-blur">
+            <div class="flex flex-col gap-3 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+              <div>
+                <p class="text-sm font-semibold uppercase tracking-[0.16em] text-sky-700">Catalog</p>
+                <h3 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Manage books</h3>
+              </div>
+              <input id="bookSearch" type="search" placeholder="Search books..."
+                class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100 sm:w-64">
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full min-w-[760px] text-left text-sm">
+                <thead class="bg-slate-50 text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
+                  <tr>
+                    <th class="px-6 py-4">Book</th>
+                    <th class="px-6 py-4">Class</th>
+                    <th class="px-6 py-4">Price</th>
+                    <th class="px-6 py-4">Views</th>
+                    <th class="px-6 py-4">Sales</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="bookTableBody" class="divide-y divide-slate-100">
+                  {% for book in books %}
+                    <tr class="book-row transition hover:bg-sky-50/40" data-book-id="{{ book._id }}" data-search="{{ book.title|lower }} {{ book.category|lower }} {{ book.class|lower }}">
+                      <td class="px-6 py-5">
+                        <div class="flex items-center gap-4">
+                          <div class="h-14 w-11 overflow-hidden rounded-2xl bg-sky-50">
+                            {% if book.cover_url %}
+                              <img src="{{ book.cover_url }}" alt="{{ book.title }} cover" class="h-full w-full object-cover">
+                            {% else %}
+                              <div class="flex h-full w-full items-center justify-center text-sm font-black text-sky-700">{{ book.title[:1]|upper }}</div>
+                            {% endif %}
+                          </div>
+                          <div>
+                            <p class="font-bold text-slate-950" data-field="title">{{ book.title }}</p>
+                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500" data-field="category">{{ book.category }}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-5 text-slate-700" data-field="class">{{ book.class }}</td>
+                      <td class="px-6 py-5">
+                        {% if book.is_free %}
+                          <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700" data-field="price">Free</span>
+                        {% else %}
+                          <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700" data-field="price">&#8377;{{ book.price }}</span>
+                        {% endif %}
+                      </td>
+                      <td class="px-6 py-5 text-slate-700">{{ book.views }}</td>
+                      <td class="px-6 py-5 text-slate-700">{{ book.purchases }}</td>
+                      <td class="px-6 py-5">
+                        <div class="flex justify-end gap-2">
+                          <button type="button" data-edit-book="{{ book._id }}"
+                            class="rounded-2xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700">
+                            Edit
+                          </button>
+                          <a href="/admin/toggle_free/{{ book._id }}"
+                            class="rounded-2xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50">
+                            Toggle
+                          </a>
+                          <a href="/admin/delete_book/{{ book._id }}"
+                            class="rounded-2xl border border-rose-200 px-3 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-50"
+                            onclick="return confirm('Delete this book?')">
+                            Delete
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <div class="space-y-6">
+            <section class="rounded-[28px] border border-slate-200 bg-white/90 p-5 shadow-xl shadow-slate-100/70 backdrop-blur">
+              <p class="text-sm font-semibold uppercase tracking-[0.16em] text-sky-700">Insights</p>
+              <h3 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Top viewed books</h3>
+              <div class="mt-5 space-y-3">
+                {% for book in top_books %}
+                  <div class="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 transition hover:border-sky-200 hover:bg-sky-50/60">
+                    <span class="truncate pr-3 text-sm font-bold text-slate-800">{{ book.title }}</span>
+                    <span class="shrink-0 text-xs font-bold text-slate-500">{{ book.views }} views</span>
+                  </div>
+                {% else %}
+                  <p class="text-sm text-slate-500">No views yet.</p>
+                {% endfor %}
+              </div>
+            </section>
+
+            <section class="grid gap-4">
+              <a href="/admin/taxonomy" class="group rounded-[28px] border border-slate-200 bg-white/90 p-5 shadow-xl shadow-slate-100/70 transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-2xl">
+                <p class="text-sm font-semibold uppercase tracking-[0.16em] text-sky-700">Catalog Setup</p>
+                <h3 class="mt-2 text-xl font-black tracking-tight text-slate-950">Classes & Categories</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-600">Create the structure students use to browse books faster.</p>
+              </a>
+
+              <a href="/admin/coupons" class="group rounded-[28px] border border-slate-200 bg-white/90 p-5 shadow-xl shadow-slate-100/70 transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-2xl">
+                <p class="text-sm font-semibold uppercase tracking-[0.16em] text-sky-700">Promotions</p>
+                <h3 class="mt-2 text-xl font-black tracking-tight text-slate-950">Coupons</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-600">Launch discounts and keep promo codes organized in one place.</p>
+              </a>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<div id="editModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-slate-950/55 p-4">
+  <div class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[28px] bg-white shadow-2xl">
+    <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4 sm:px-6">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.16em] text-sky-700">Edit book</p>
+        <h3 id="editModalTitle" class="mt-1 text-2xl font-black tracking-tight text-slate-950">Book details</h3>
+      </div>
+      <button id="closeEditModal" type="button" class="rounded-2xl p-2 text-slate-500 transition hover:bg-slate-100" aria-label="Close modal">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <form id="editBookForm" class="space-y-4 p-5 sm:p-6" enctype="multipart/form-data">
+      <input type="hidden" id="editBookId">
+
+      <label class="block">
+        <span class="mb-2 block text-sm font-semibold text-slate-700">Title</span>
+        <input id="editTitle" name="title" required
+          class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100">
+      </label>
+
+      <label class="block">
+        <span class="mb-2 block text-sm font-semibold text-slate-700">Description</span>
+        <textarea id="editDescription" name="description" rows="4"
+          class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100"></textarea>
+      </label>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="block">
+          <span class="mb-2 block text-sm font-semibold text-slate-700">Class</span>
+          <select id="editClass" name="class"
+            class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100">
+            {% for c in classes %}
+              <option value="{{ c.name }}">{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label class="block">
+          <span class="mb-2 block text-sm font-semibold text-slate-700">Category</span>
+          <select id="editCategory" name="category"
+            class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100">
+            {% for c in categories %}
+              <option value="{{ c.name }}">{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+        <label class="block">
+          <span class="mb-2 block text-sm font-semibold text-slate-700">Price</span>
+          <input id="editPrice" name="price" type="number" min="0" required
+            class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100">
+        </label>
+        <label class="flex h-12 items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">
+          <input id="editIsFree" name="is_free" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-sky-600">
+          Free book
+        </label>
+      </div>
+
+      <label class="block">
+        <span class="mb-2 block text-sm font-semibold text-slate-700">Cover image</span>
+        <input id="editCover" name="cover_image" type="file" accept="image/*"
+          class="block w-full rounded-2xl border border-slate-200 bg-slate-50 text-sm text-slate-600 file:mr-4 file:border-0 file:bg-slate-100 file:px-4 file:py-3 file:text-sm file:font-bold file:text-slate-700 hover:file:bg-slate-200">
+      </label>
+
+      <div id="editFormStatus" class="hidden rounded-2xl border px-4 py-3 text-sm font-semibold"></div>
+
+      <div class="flex flex-col-reverse gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:justify-end">
+        <button id="cancelEdit" type="button" class="h-11 rounded-2xl border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50">Cancel</button>
+        <button id="saveEdit" type="submit" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-700 px-5 text-sm font-bold text-white shadow-lg shadow-sky-200 transition hover:from-sky-700 hover:to-blue-800 disabled:cursor-not-allowed disabled:opacity-70">
+          <span id="saveEditSpinner" class="hidden h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
+          Save changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const adminBooks = {{ books|tojson }};
+let booksById = Object.fromEntries(adminBooks.map(book => [book._id, book]));
+
+const dashboardSkeleton = document.getElementById("dashboardSkeleton");
+const dashboardContent = document.getElementById("dashboardContent");
+const sidebar = document.getElementById("adminSidebar");
+const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+const openSidebar = document.getElementById("openSidebar");
+const closeSidebar = document.getElementById("closeSidebar");
+const collapseSidebar = document.getElementById("collapseSidebar");
+const bookSearch = document.getElementById("bookSearch");
+const editModal = document.getElementById("editModal");
+const closeEditModal = document.getElementById("closeEditModal");
+const cancelEdit = document.getElementById("cancelEdit");
+const editBookForm = document.getElementById("editBookForm");
+const editFormStatus = document.getElementById("editFormStatus");
+const saveEdit = document.getElementById("saveEdit");
+const saveEditSpinner = document.getElementById("saveEditSpinner");
+const editPrice = document.getElementById("editPrice");
+const editIsFree = document.getElementById("editIsFree");
+
+setTimeout(() => {
+    dashboardSkeleton.classList.add("hidden");
+    dashboardContent.classList.remove("hidden");
+}, 350);
+
+function showSidebar() {
+    sidebar.classList.remove("-translate-x-full");
+    sidebarBackdrop.classList.remove("hidden");
+}
+
+function hideSidebar() {
+    sidebar.classList.add("-translate-x-full");
+    sidebarBackdrop.classList.add("hidden");
+}
+
+openSidebar.addEventListener("click", showSidebar);
+closeSidebar.addEventListener("click", hideSidebar);
+sidebarBackdrop.addEventListener("click", hideSidebar);
+collapseSidebar.addEventListener("click", () => {
+    const collapsed = sidebar.classList.toggle("lg:w-20");
+    sidebar.classList.toggle("lg:w-72", !collapsed);
+    document.querySelectorAll(".sidebar-label").forEach(label => label.classList.toggle("lg:hidden", collapsed));
+    document.querySelectorAll("#adminSidebar nav a").forEach(link => link.classList.toggle("lg:justify-center", collapsed));
+    document.querySelector("#adminSidebar .absolute a").classList.toggle("lg:px-0", collapsed);
+});
+
+bookSearch.addEventListener("input", () => {
+    const query = bookSearch.value.trim().toLowerCase();
+    document.querySelectorAll(".book-row").forEach(row => {
+        row.classList.toggle("hidden", query && !row.dataset.search.includes(query));
+    });
+});
+
+function openEditModal(bookId) {
+    const book = booksById[bookId];
+    if (!book) return;
+
+    document.getElementById("editBookId").value = book._id;
+    document.getElementById("editModalTitle").textContent = book.title || "Book details";
+    document.getElementById("editTitle").value = book.title || "";
+    document.getElementById("editDescription").value = book.description || "";
+    document.getElementById("editClass").value = book.class || "";
+    document.getElementById("editCategory").value = book.category || "";
+    editPrice.value = book.price || 0;
+    editIsFree.checked = !!book.is_free;
+    syncEditPriceState();
+    document.getElementById("editCover").value = "";
+    editFormStatus.className = "hidden rounded-2xl border px-4 py-3 text-sm font-semibold";
+    editFormStatus.textContent = "";
+    editModal.classList.remove("hidden");
+    editModal.classList.add("flex");
+}
+
+function hideEditModal() {
+    editModal.classList.add("hidden");
+    editModal.classList.remove("flex");
+}
+
+document.querySelectorAll("[data-edit-book]").forEach(button => {
+    button.addEventListener("click", () => openEditModal(button.dataset.editBook));
+});
+
+closeEditModal.addEventListener("click", hideEditModal);
+cancelEdit.addEventListener("click", hideEditModal);
+editModal.addEventListener("click", event => {
+    if (event.target === editModal) hideEditModal();
+});
+editIsFree.addEventListener("change", syncEditPriceState);
+
+function syncEditPriceState() {
+    if (editIsFree.checked) {
+        editPrice.value = 0;
+        editPrice.disabled = true;
+    } else {
+        editPrice.disabled = false;
+    }
+}
+
+editBookForm.addEventListener("submit", event => {
+    event.preventDefault();
+    const bookId = document.getElementById("editBookId").value;
+    const formData = new FormData(editBookForm);
+
+    saveEdit.disabled = true;
+    saveEditSpinner.classList.remove("hidden");
+    editFormStatus.className = "hidden rounded-2xl border px-4 py-3 text-sm font-semibold";
+
+    fetch(`/admin/update_book/${bookId}`, {
+        method: "POST",
+        headers: {"X-Requested-With": "XMLHttpRequest"},
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Unable to save changes");
+        return response.json();
+    })
+    .then(data => {
+        booksById[bookId] = data.book;
+        updateBookRow(data.book);
+        editFormStatus.className = "rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700";
+        editFormStatus.textContent = "Book updated successfully.";
+        setTimeout(hideEditModal, 650);
+    })
+    .catch(() => {
+        editFormStatus.className = "rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700";
+        editFormStatus.textContent = "Could not save changes. Please check the form and try again.";
+    })
+    .finally(() => {
+        saveEdit.disabled = false;
+        saveEditSpinner.classList.add("hidden");
+    });
+});
+
+function updateBookRow(book) {
+    const row = document.querySelector(`[data-book-id="${book._id}"]`);
+    if (!row) return;
+
+    row.dataset.search = `${book.title || ""} ${book.category || ""} ${book.class || ""}`.toLowerCase();
+    row.querySelector('[data-field="title"]').textContent = book.title || "";
+    row.querySelector('[data-field="category"]').textContent = book.category || "";
+    row.querySelector('[data-field="class"]').textContent = book.class || "";
+
+    const priceField = row.querySelector('[data-field="price"]');
+    priceField.textContent = book.is_free ? "Free" : `\u20b9${book.price}`;
+    priceField.className = book.is_free
+        ? "rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700"
+        : "rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700";
+
+    const imageWrap = row.querySelector(".h-14.w-11");
+    if (book.cover_url) {
+        imageWrap.innerHTML = `<img src="${book.cover_url}" alt="${book.title} cover" class="h-full w-full object-cover">`;
+    }
+}
+</script>
+
+{% endblock %}

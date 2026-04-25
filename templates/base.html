@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% set seo_title = seo_title|default(default_seo_title) %}
+  {% set seo_description = seo_description|default(default_seo_description) %}
+  {% set seo_keywords = seo_keywords|default(default_seo_keywords) %}
+  {% set seo_robots = seo_robots|default("index, follow") %}
+  {% set seo_type = seo_type|default("website") %}
+  {% set seo_image = seo_image|default(og_image_url) %}
+  <title>{{ seo_title }}</title>
+  <meta name="description" content="{{ seo_description }}">
+  <meta name="keywords" content="{{ seo_keywords }}">
+  <meta name="robots" content="{{ seo_robots }}">
+  <link rel="canonical" href="{{ canonical_url }}">
+
+  <meta property="og:type" content="{{ seo_type }}">
+  <meta property="og:site_name" content="{{ site_name }}">
+  <meta property="og:title" content="{{ seo_title }}">
+  <meta property="og:description" content="{{ seo_description }}">
+  <meta property="og:url" content="{{ canonical_url }}">
+  <meta property="og:image" content="{{ seo_image }}">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ seo_title }}">
+  <meta name="twitter:description" content="{{ seo_description }}">
+  <meta name="twitter:image" content="{{ seo_image }}">
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "{{ site_name }}",
+      "url": "{{ canonical_url }}"
+    }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/static/pdfjs/pdf.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  {% block extra_head %}{% endblock %}
+
+  <style>
+    /* ── Tokens ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:          #0d0f14;
+      --ink-2:        #3d4252;
+      --ink-3:        #7c8395;
+      --surface:      #ffffff;
+      --surface-2:    #f5f6fa;
+      --surface-3:    #eef0f6;
+      --border:       rgba(0,0,0,0.08);
+      --border-2:     rgba(0,0,0,0.14);
+      --accent:       #1a5cff;
+      --accent-dark:  #0040e0;
+      --accent-light: #edf2ff;
+      --r-sm: 8px;
+      --r-md: 12px;
+      --r-lg: 18px;
+      --fd: 'Playfair Display', Georgia, serif;
+      --fb: 'DM Sans', system-ui, sans-serif;
+    }
+    body {
+      font-family: var(--fb);
+      background: #f0f2f8;
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    main { flex: 1; }
+
+    /* ━━━━━━━━━━ NAVBAR ━━━━━━━━━━ */
+    .navbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 100;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      height: 60px;
+    }
+
+    /* Brand */
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      text-decoration: none;
+      flex-shrink: 0;
+      margin-right: 28px;
+    }
+    .nav-brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+    .nav-brand-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .nav-brand-text { display: flex; flex-direction: column; gap: 1px; }
+    .nav-brand-name {
+      font-family: var(--fd);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .nav-brand-sub {
+      font-size: 9.5px;
+      font-weight: 500;
+      color: var(--ink-3);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    /* Desktop links */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex: 1;
+    }
+    .nav-link {
+      height: 34px;
+      padding: 0 12px;
+      border-radius: var(--r-sm);
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--ink-2);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .nav-link svg { flex-shrink: 0; }
+    .nav-link:hover { background: var(--surface-2); color: var(--ink); }
+    .nav-link.active {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Right side */
+    .nav-end {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      height: 34px;
+      padding: 0 16px;
+      border-radius: var(--r-sm);
+      font-family: var(--fb);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .nav-btn-primary { background: var(--accent); color: #fff; }
+    .nav-btn-primary:hover { background: var(--accent-dark); }
+
+    .nav-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a5b4fc, var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    /* ── Hamburger ── */
+    .nav-toggle {
+      display: none;
+      width: 36px; height: 36px;
+      border-radius: var(--r-sm);
+      border: 1.5px solid var(--border-2);
+      background: transparent;
+      cursor: pointer;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 18px; height: 2px;
+      background: var(--ink-2);
+      border-radius: 2px;
+      transition: transform 0.25s, opacity 0.2s;
+      transform-origin: center;
+    }
+    .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ── Mobile drawer ── */
+    .nav-drawer {
+      display: none;
+      flex-direction: column;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 10px 14px 14px;
+      gap: 3px;
+      /* shadow under drawer */
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+    }
+    .nav-drawer.open { display: flex; }
+
+    .drawer-link {
+      height: 44px;
+      padding: 0 12px;
+      border-radius: var(--r-sm);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink-2);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .drawer-link:hover  { background: var(--surface-2); color: var(--ink); }
+    .drawer-link.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+
+    .drawer-divider { height: 1px; background: var(--border); margin: 8px 0 6px; }
+    .drawer-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .drawer-btn { flex: 1; justify-content: center; }
+
+    /* ── Responsive breakpoint ── */
+    @media (max-width: 768px) {
+      .nav-links, .nav-end { display: none; }
+      .nav-toggle { display: flex; }
+    }
+    @media (max-width: 480px) {
+      .nav-inner { padding: 0 14px; }
+      .nav-brand { margin-right: 0; }
+    }
+
+    /* ── Footer ── */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      padding: 18px 20px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-3);
+    }
+    .site-footer span { color: var(--ink-2); font-weight: 600; }
+  </style>
+</head>
+
+<body>
+
+<!-- ━━━━━━━━━━ NAVBAR ━━━━━━━━━━ -->
+<nav class="navbar">
+  <div class="nav-inner">
+
+    <!-- Brand -->
+    <a href="/" class="nav-brand">
+      <div class="nav-brand-icon">
+        <img src="{{ url_for('static', filename='images/logo1.png') }}" alt="Prodigy Unite Classes logo">
+      </div>
+      <div class="nav-brand-text">
+        <div class="nav-brand-name">Prodigy Unite</div>
+        <div class="nav-brand-sub">Classes</div>
+      </div>
+    </a>
+
+    <!-- Desktop links -->
+    <div class="nav-links">
+      <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        </svg>
+        Library
+      </a>
+      <a href="/downloads" class="nav-link {% if '/downloads' in request.path %}active{% endif %}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+        </svg>
+        Downloads
+      </a>
+      <a href="/test-panel" class="nav-link {% if '/test' in request.path %}active{% endif %}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        Tests
+      </a>
+      <a href="/cart" class="nav-link {% if '/cart' in request.path %}active{% endif %}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+        Cart
+      </a>
+    </div>
+
+    <!-- Desktop right side -->
+    <div class="nav-end">
+      {% if current_user %}
+        <a href="/logout" class="nav-btn nav-btn-primary">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <path d="m16 17 5-5-5-5"/>
+            <path d="M21 12H9"/>
+          </svg>
+          Logout
+        </a>
+      {% else %}
+        <a href="/login" class="nav-btn nav-btn-primary">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <path d="m10 17 5-5-5-5"/>
+            <path d="M15 12H3"/>
+          </svg>
+          Login
+        </a>
+      {% endif %}
+    </div>
+
+    <!-- Hamburger — mobile only -->
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+  </div><!-- /nav-inner -->
+
+  <!-- Mobile slide-down drawer -->
+  <div class="nav-drawer" id="navDrawer">
+    <a href="/" class="drawer-link {% if request.path == '/' %}active{% endif %}">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+      </svg>
+      Library
+    </a>
+    <a href="/downloads" class="drawer-link {% if '/downloads' in request.path %}active{% endif %}">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+      </svg>
+      Downloads
+    </a>
+    <a href="/test-panel" class="drawer-link {% if '/test' in request.path %}active{% endif %}">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 11l3 3L22 4"/>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+      </svg>
+      Tests
+    </a>
+    <a href="/cart" class="drawer-link {% if '/cart' in request.path %}active{% endif %}">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+      </svg>
+      Cart
+    </a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-actions">
+      {% if current_user %}
+        <a href="/logout" class="nav-btn nav-btn-primary drawer-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <path d="m16 17 5-5-5-5"/>
+            <path d="M21 12H9"/>
+          </svg>
+          Logout
+        </a>
+      {% else %}
+        <a href="/login" class="nav-btn nav-btn-primary drawer-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <path d="m10 17 5-5-5-5"/>
+            <path d="M15 12H3"/>
+          </svg>
+          Login
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+</nav><!-- /navbar -->
+
+
+<!-- ━━━━━━━━━━ PAGE CONTENT ━━━━━━━━━━ -->
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+
+<!-- ━━━━━━━━━━ FOOTER ━━━━━━━━━━ -->
+<footer class="site-footer">
+  Developed by <span>Rohadas</span>
+</footer>
+
+
+<!-- ━━━━━━━━━━ NAVBAR SCRIPT ━━━━━━━━━━ -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const toggle = document.getElementById('navToggle');
+  const drawer = document.getElementById('navDrawer');
+
+  if (!toggle || !drawer) return; // prevent crash
+
+  toggle.addEventListener('click', function () {
+    const isOpen = drawer.classList.toggle('open');
+    toggle.classList.toggle('open', isOpen);
+    toggle.setAttribute('aria-expanded', isOpen);
+  });
+
+  drawer.querySelectorAll('.drawer-link').forEach(function (link) {
+    link.addEventListener('click', function () {
+      drawer.classList.remove('open');
+      toggle.classList.remove('open');
+    });
+  });
+
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 768) {
+      drawer.classList.remove('open');
+      toggle.classList.remove('open');
+    }
+  });
+});
+</script>
+
+</body>
+</html>

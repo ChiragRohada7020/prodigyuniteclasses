@@ -1,0 +1,131 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+
+<div class="space-y-6">
+  <section class="relative overflow-hidden rounded-[30px] border border-white/60 bg-[linear-gradient(135deg,#111827_0%,#0f766e_44%,#22c55e_100%)] p-6 text-white shadow-[0_30px_80px_rgba(17,24,39,0.18)] sm:p-8">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.15),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.12),transparent_24%)]"></div>
+    <div class="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <div class="max-w-2xl">
+        <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100">Admin Edit</p>
+        <h1 class="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Update book details without leaving the polished admin flow.</h1>
+        <p class="mt-3 max-w-xl text-sm leading-7 text-emerald-50/90 sm:text-base">
+          The dashboard has modal editing, but this page stays available as a full editor when you want more room.
+        </p>
+      </div>
+      <a href="/admin" class="inline-flex h-12 items-center justify-center rounded-2xl border border-white/25 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur transition hover:bg-white/15">
+        Back to Dashboard
+      </a>
+    </div>
+  </section>
+
+  <section class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur sm:p-8">
+    <form method="POST" action="/admin/update_book/{{ book._id }}" enctype="multipart/form-data" class="space-y-6">
+      <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+        <div class="space-y-6">
+          <label class="block">
+            <span class="mb-2 block text-sm font-semibold text-slate-700">Book title</span>
+            <input name="title" value="{{ book.title }}" required
+              class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100">
+          </label>
+
+          <label class="block">
+            <span class="mb-2 block text-sm font-semibold text-slate-700">Description</span>
+            <textarea name="description" rows="6"
+              class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100">{{ book.description }}</textarea>
+          </label>
+
+          <div class="grid gap-6 sm:grid-cols-2">
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">Class</span>
+              <select name="class" class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100">
+                {% for c in classes %}
+                  <option value="{{ c.name }}" {% if c.name == book.class %}selected{% endif %}>{{ c.name }}</option>
+                {% endfor %}
+              </select>
+            </label>
+
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">Category</span>
+              <select name="category" class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100">
+                {% for c in categories %}
+                  <option value="{{ c.name }}" {% if c.name == book.category %}selected{% endif %}>{{ c.name }}</option>
+                {% endfor %}
+              </select>
+            </label>
+          </div>
+
+          <div class="grid gap-6 sm:grid-cols-[1fr_auto] sm:items-end">
+            <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700">Price</span>
+              <input id="priceInput" type="number" name="price" min="0" value="{{ book.price }}" required
+                class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100">
+            </label>
+
+            <label class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">
+              <input id="freeCheckbox" type="checkbox" name="is_free" class="h-4 w-4 rounded border-slate-300 text-emerald-600" {% if book.is_free %}checked{% endif %}>
+              Free Book
+            </label>
+          </div>
+        </div>
+
+        <div class="space-y-5 rounded-[24px] border border-slate-200 bg-slate-50 p-5">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700">Cover</p>
+            <h2 class="mt-1 text-xl font-black tracking-tight text-slate-950">Current artwork</h2>
+          </div>
+
+          {% if book.cover_url %}
+            <img src="{{ book.cover_url }}" alt="{{ book.title }} cover" class="h-64 w-full rounded-[24px] border border-slate-200 object-cover shadow-sm">
+          {% else %}
+            <div class="flex h-64 w-full items-center justify-center rounded-[24px] border border-dashed border-slate-300 bg-white text-5xl font-black text-emerald-700">
+              {{ book.title[:1]|upper }}
+            </div>
+          {% endif %}
+
+          <label class="block">
+            <span class="mb-2 block text-sm font-semibold text-slate-700">Replace cover image</span>
+            <input type="file" name="cover_image" accept="image/*"
+              class="block w-full rounded-2xl border border-slate-200 bg-white text-sm text-slate-600 file:mr-4 file:rounded-l-2xl file:border-0 file:bg-slate-900 file:px-4 file:py-3 file:text-sm file:font-bold file:text-white hover:file:bg-slate-800">
+          </label>
+
+          <div class="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            Saving here updates the existing book record. The dashboard modal and this full page use the same backend route.
+          </div>
+        </div>
+      </div>
+
+      <button id="saveButton" class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:from-emerald-600 hover:to-teal-700 disabled:cursor-not-allowed disabled:opacity-70">
+        <span id="saveSpinner" class="hidden h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
+        Update Book
+      </button>
+    </form>
+  </section>
+</div>
+
+<script>
+const freeCheckbox = document.getElementById("freeCheckbox");
+const priceInput = document.getElementById("priceInput");
+const saveButton = document.getElementById("saveButton");
+const saveSpinner = document.getElementById("saveSpinner");
+const form = document.querySelector("form");
+
+function syncPriceState() {
+    if (freeCheckbox.checked) {
+        priceInput.value = 0;
+        priceInput.disabled = true;
+    } else {
+        priceInput.disabled = false;
+    }
+}
+
+freeCheckbox.addEventListener("change", syncPriceState);
+syncPriceState();
+
+form.addEventListener("submit", () => {
+    saveButton.disabled = true;
+    saveSpinner.classList.remove("hidden");
+});
+</script>
+
+{% endblock %}

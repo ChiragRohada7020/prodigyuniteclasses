@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-900">
+  <main class="flex min-h-screen items-center justify-center px-4 py-10">
+    <section class="w-full max-w-md rounded-lg bg-white p-6 shadow-2xl">
+      <div class="mb-6">
+        <p class="text-sm font-semibold uppercase tracking-wide text-blue-700">Book Platform</p>
+        <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-950">Admin Login</h1>
+        <p class="mt-2 text-sm text-slate-600">Use the admin credentials to manage books, coupons, classes, and categories.</p>
+      </div>
+
+      {% if error %}
+        <div class="mb-4 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{{ error }}</div>
+      {% endif %}
+
+      <form method="POST" class="space-y-4">
+        <label class="block">
+          <span class="mb-1 block text-sm font-semibold text-slate-700">Email</span>
+          <input name="email" type="email" required
+            class="h-11 w-full rounded-md border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+        </label>
+
+        <label class="block">
+          <span class="mb-1 block text-sm font-semibold text-slate-700">Password</span>
+          <input name="password" type="password" required
+            class="h-11 w-full rounded-md border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+        </label>
+
+        <button class="h-11 w-full rounded-md bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">Login</button>
+      </form>
+
+      <a href="/" class="mt-4 inline-flex text-sm font-semibold text-slate-600 hover:text-slate-950">Back to store</a>
+    </section>
+  </main>
+</body>
+</html>

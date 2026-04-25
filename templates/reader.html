@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+</script>
+
+<style>
+.dark-reader {
+  background: #0f172a;
+}
+
+.dark-reader .reader-surface {
+  background: linear-gradient(180deg, #020617 0%, #111827 100%);
+}
+
+.dark-reader canvas {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+.highlight-box {
+  position: absolute;
+  background: rgba(250, 204, 21, 0.35);
+  border-radius: 4px;
+}
+</style>
+
+<div id="readerShell" class="min-h-[calc(100vh-82px)] bg-[linear-gradient(180deg,#f6faff_0%,#eef4fb_100%)]">
+  <div class="mx-auto grid max-w-7xl gap-5 px-3 py-4 sm:px-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:px-8 lg:py-6">
+    <main class="order-2 min-w-0 lg:order-1">
+      <section class="mb-4 rounded-[26px] border border-white/80 bg-white/80 p-4 shadow-xl shadow-sky-100/60 backdrop-blur sm:p-5">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.16em] text-sky-700">Reader</p>
+            <h1 class="mt-1 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">Study Mode</h1>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:justify-end">
+            <button onclick="prevPage()" class="h-11 rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Prev</button>
+            <button onclick="nextPage()" class="h-11 rounded-2xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Next</button>
+            <button onclick="toggleDarkMode()" class="h-11 rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800">Dark</button>
+          </div>
+        </div>
+
+        <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div id="page-info" class="inline-flex w-fit items-center rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700"></div>
+          <div class="flex items-center gap-2">
+            <button onclick="zoomOut()" class="h-10 w-10 rounded-full border border-slate-300 bg-white text-lg font-bold text-slate-700 transition hover:bg-slate-50">-</button>
+            <button onclick="zoomIn()" class="h-10 w-10 rounded-full border border-slate-300 bg-white text-lg font-bold text-slate-700 transition hover:bg-slate-50">+</button>
+            <a id="downloadLink" href="#" target="_blank" class="inline-flex h-10 items-center rounded-full border border-sky-200 bg-sky-50 px-4 text-sm font-bold text-sky-700 transition hover:bg-sky-100">Download</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="reader-surface rounded-[28px] border border-slate-200 bg-white p-3 shadow-xl shadow-slate-200/50 sm:p-5">
+        <div id="reader-card" class="mx-auto w-fit rounded-[24px] bg-white p-3 shadow-xl sm:p-5">
+          <div class="relative">
+            <canvas id="pdf-render"></canvas>
+            <div id="highlight-layer" class="absolute left-0 top-0"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="order-1 space-y-4 lg:order-2">
+      <section class="overflow-hidden rounded-[28px] border border-sky-100 bg-[linear-gradient(135deg,#e0f2fe_0%,#f0f9ff_52%,#eef2ff_100%)] p-5 shadow-lg shadow-sky-100/70">
+        <div class="flex items-start gap-4">
+          <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/85 text-lg font-black text-sky-700 shadow-sm">Hi</div>
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.14em] text-sky-700">AI Friend</p>
+            <h2 class="mt-1 text-xl font-black tracking-tight text-slate-950">Your little study buddy is here.</h2>
+            <p class="mt-2 text-sm leading-6 text-slate-600">Ask for a simple explanation, a quick summary, or what to remember before your test.</p>
+          </div>
+        </div>
+
+        <div class="mt-4 rounded-2xl bg-white/75 p-3 text-sm font-medium text-slate-700 shadow-sm">
+          Try: "Explain this like I am in class 8" or "Give me 3 quick revision points"
+        </div>
+      </section>
+
+      <section class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
+        <label class="block">
+          <span class="mb-2 block text-sm font-semibold text-slate-700">Ask assistant</span>
+          <textarea id="aiPrompt" rows="4" placeholder="Explain this page like I am revising tonight."
+            class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100"></textarea>
+        </label>
+        <button onclick="askAssistant()" id="askAssistantBtn"
+          class="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-700 px-4 text-sm font-bold text-white shadow-lg shadow-sky-200 transition hover:from-sky-700 hover:to-blue-800 disabled:opacity-70">
+          <span id="aiSpinner" class="hidden h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
+          Ask Assistant
+        </button>
+
+        <div id="ai-response" class="mt-4 max-h-72 overflow-y-auto rounded-2xl bg-slate-50 p-4 text-sm leading-7 text-slate-700">
+          Hi. I am ready whenever you are.
+        </div>
+      </section>
+
+      <section class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h3 class="text-lg font-black tracking-tight text-slate-950">Notes</h3>
+            <p class="text-sm text-slate-500">Saved separately for each page.</p>
+          </div>
+          <span id="notePageBadge" class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-700">Page 1</span>
+        </div>
+
+        <label class="mt-4 block">
+          <textarea id="note" rows="6" placeholder="Write your notes for this page..."
+            class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"></textarea>
+        </label>
+
+        <div class="mt-3 flex items-center gap-3">
+          <button onclick="saveNote()" id="saveNoteBtn"
+            class="inline-flex h-11 items-center justify-center rounded-2xl bg-emerald-600 px-5 text-sm font-bold text-white transition hover:bg-emerald-700">
+            Save Note
+          </button>
+          <p id="noteStatus" class="text-sm font-semibold text-slate-500"></p>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<script>
+let bookId = "{{ book_id }}";
+let pdfDoc = null;
+let pageNum = 1;
+let scale = 1.08;
+let currentPageText = "";
+
+const canvas = document.getElementById("pdf-render");
+const ctx = canvas.getContext("2d");
+const pageInfo = document.getElementById("page-info");
+const highlightLayer = document.getElementById("highlight-layer");
+const aiResponse = document.getElementById("ai-response");
+const aiSpinner = document.getElementById("aiSpinner");
+const askAssistantBtn = document.getElementById("askAssistantBtn");
+const noteStatus = document.getElementById("noteStatus");
+const downloadLink = document.getElementById("downloadLink");
+const noteField = document.getElementById("note");
+const notePageBadge = document.getElementById("notePageBadge");
+
+downloadLink.href = `/download_pdf/${bookId}`;
+
+fetch(`/get_secure_pdf/${bookId}`)
+.then(res => res.json())
+.then(data => {
+    if (!data.url) {
+        aiResponse.textContent = "I could not find the PDF URL for this book.";
+        return;
+    }
+
+    const loadingTask = pdfjsLib.getDocument(data.url);
+
+    loadingTask.promise.then(pdf => {
+        pdfDoc = pdf;
+        renderPage(pageNum);
+    }).catch(() => {
+        aiResponse.textContent = "I could not load this PDF. Please try again.";
+    });
+});
+
+function renderPage(num) {
+    pdfDoc.getPage(num).then(page => {
+        const viewport = page.getViewport({ scale });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        highlightLayer.style.width = canvas.width + "px";
+        highlightLayer.style.height = canvas.height + "px";
+        highlightLayer.innerHTML = "";
+
+        page.render({ canvasContext: ctx, viewport });
+        pageInfo.textContent = `Page ${num} / ${pdfDoc.numPages}`;
+        notePageBadge.textContent = `Page ${num}`;
+        noteStatus.textContent = "Loading saved note...";
+        noteStatus.className = "text-sm font-semibold text-slate-500";
+
+        page.getTextContent().then(textContent => {
+            currentPageText = textContent.items.map(item => item.str).join(" ").trim();
+        });
+
+        loadNoteForPage(num);
+    });
+}
+
+function loadNoteForPage(num) {
+    fetch(`/get_note/${bookId}/${num}`)
+    .then(response => response.json().then(data => {
+        if (!response.ok) throw new Error(data.error || "Could not load note");
+        return data;
+    }))
+    .then(data => {
+        noteField.value = data.note || "";
+        noteStatus.textContent = data.note ? "Loaded saved note." : "No note saved for this page yet.";
+        noteStatus.className = data.note
+            ? "text-sm font-semibold text-emerald-600"
+            : "text-sm font-semibold text-slate-500";
+    })
+    .catch(() => {
+        noteField.value = "";
+        noteStatus.textContent = "Could not load this page note.";
+        noteStatus.className = "text-sm font-semibold text-rose-600";
+    });
+}
+
+function nextPage() {
+    if (!pdfDoc || pageNum >= pdfDoc.numPages) return;
+    pageNum++;
+    renderPage(pageNum);
+}
+
+function prevPage() {
+    if (!pdfDoc || pageNum <= 1) return;
+    pageNum--;
+    renderPage(pageNum);
+}
+
+function zoomIn() {
+    scale += 0.14;
+    renderPage(pageNum);
+}
+
+function zoomOut() {
+    if (scale <= 0.62) return;
+    scale -= 0.14;
+    renderPage(pageNum);
+}
+
+function toggleDarkMode() {
+    document.getElementById("readerShell").classList.toggle("dark-reader");
+}
+
+function askAssistant() {
+    const message = document.getElementById("aiPrompt").value || "Explain this page in simple language.";
+    askAssistantBtn.disabled = true;
+    aiSpinner.classList.remove("hidden");
+    aiResponse.textContent = "Thinking with you...";
+
+    fetch("/ai_explain", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            book_id: bookId,
+            page: pageNum,
+            text: currentPageText,
+            message
+        })
+    })
+    .then(response => response.json().then(data => {
+        if (!response.ok) throw new Error(data.error || "Assistant failed");
+        return data;
+    }))
+    .then(data => {
+        aiResponse.textContent = data.result;
+    })
+    .catch(error => {
+        aiResponse.textContent = error.message;
+    })
+    .finally(() => {
+        askAssistantBtn.disabled = false;
+        aiSpinner.classList.add("hidden");
+    });
+}
+
+function saveNote() {
+    const note = noteField.value.trim();
+    if (!note) {
+        noteStatus.textContent = "Write a note first.";
+        noteStatus.className = "text-sm font-semibold text-rose-600";
+        return;
+    }
+
+    fetch("/save_note", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            book_id: bookId,
+            page: pageNum,
+            note
+        })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Could not save note");
+        noteStatus.textContent = "Saved for this page.";
+        noteStatus.className = "text-sm font-semibold text-emerald-600";
+    })
+    .catch(() => {
+        noteStatus.textContent = "Could not save note.";
+        noteStatus.className = "text-sm font-semibold text-rose-600";
+    });
+}
+
+canvas.addEventListener("click", function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const highlight = document.createElement("div");
+    highlight.className = "highlight-box";
+    highlight.style.left = x + "px";
+    highlight.style.top = y + "px";
+    highlight.style.width = "100px";
+    highlight.style.height = "20px";
+    highlightLayer.appendChild(highlight);
+});
+
+document.addEventListener("keydown", function(e) {
+    if (e.key === "ArrowRight") nextPage();
+    if (e.key === "ArrowLeft") prevPage();
+});
+</script>
+
+{% endblock %}

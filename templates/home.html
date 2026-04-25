@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="bg-[linear-gradient(180deg,#f7fbff_0%,#eef4fb_40%,#f8fbff_100%)]">
+  <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+
+    <section class="relative overflow-hidden rounded-[32px] border border-white/80 bg-slate-950 shadow-2xl shadow-sky-100/70">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.30),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(34,197,94,0.18),transparent_26%)]"></div>
+      <div class="absolute inset-0 bg-black/35"></div>
+      <img
+        src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=80"
+        alt="Students studying together"
+        class="absolute inset-0 h-full w-full object-cover opacity-30"
+      >
+
+      <div class="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.1fr_0.9fr] lg:p-10">
+        <div class="max-w-2xl">
+          <span class="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-sky-200 backdrop-blur">
+            Digital Study Shelf
+          </span>
+          <h1 class="mt-5 text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
+            Books, notes, tests,
+            <span class="bg-gradient-to-r from-sky-300 to-emerald-300 bg-clip-text text-transparent">all in one calm flow.</span>
+          </h1>
+          <p class="mt-5 max-w-xl text-sm leading-7 text-slate-200 sm:text-base">
+            Browse by class, pick your subject, read instantly, and turn your books into revision-ready study sessions.
+          </p>
+
+          <div class="mt-6 flex flex-wrap gap-3">
+            <a href="/test-panel" class="inline-flex h-12 items-center rounded-2xl bg-sky-500 px-5 text-sm font-bold text-white shadow-lg shadow-sky-500/30 transition hover:bg-sky-600">
+              Create Test
+            </a>
+            <a href="/downloads" class="inline-flex h-12 items-center rounded-2xl border border-white/20 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur transition hover:bg-white/15">
+              Downloaded Books
+            </a>
+          </div>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+          <div class="rounded-3xl border border-white/12 bg-white/10 p-5 backdrop-blur">
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-sky-200">Classes</p>
+            <p class="mt-3 text-4xl font-black text-white">{{ grouped_books|length }}</p>
+          </div>
+          <div class="rounded-3xl border border-white/12 bg-white/10 p-5 backdrop-blur">
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200">Categories</p>
+            <p class="mt-3 text-4xl font-black text-white">{{ categories|length }}</p>
+          </div>
+          <div class="rounded-3xl border border-white/12 bg-white/10 p-5 backdrop-blur">
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200">Showing</p>
+            <p id="visibleBookCount" class="mt-3 text-4xl font-black text-white">0</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-6 rounded-[28px] border border-slate-200 bg-white/90 p-4 shadow-xl shadow-slate-100/70 backdrop-blur sm:p-5">
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-[0.16em] text-sky-700">Explore</p>
+          <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Find your next book</h2>
+        </div>
+        <button id="clearFilters" type="button" class="inline-flex h-10 items-center rounded-2xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+          Reset
+        </button>
+      </div>
+
+      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-[1.6fr_1fr_1fr_0.9fr_1fr]">
+        <label class="block">
+          <span class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Search</span>
+          <input id="searchFilter" type="search" placeholder="Title, description, class, category..."
+            class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100">
+        </label>
+
+        <label class="block">
+          <span class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Class</span>
+          <select id="classFilter" class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100">
+            <option value="">All Classes</option>
+            {% for c in classes %}
+              <option value="{{ c.name }}">{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label class="block">
+          <span class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Category</span>
+          <select id="categoryFilter" class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100">
+            <option value="">All Categories</option>
+            {% for c in categories %}
+              <option value="{{ c.name }}">{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label class="block">
+          <span class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Price</span>
+          <select id="priceFilter" class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100">
+            <option value="">All</option>
+            <option value="free">Free</option>
+            <option value="paid">Paid</option>
+          </select>
+        </label>
+
+        <label class="block">
+          <span class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Ownership</span>
+          <select id="ownershipFilter" class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100">
+            <option value="">All Books</option>
+            <option value="purchased">Purchased</option>
+            <option value="not-purchased">Not Purchased</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <div id="emptyState" class="mt-6 hidden rounded-[28px] border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
+      <h3 class="text-2xl font-black tracking-tight text-slate-950">No books found</h3>
+      <p class="mt-3 text-sm text-slate-600">Try another search term or reset the filters.</p>
+    </div>
+
+    {% if purchased_books %}
+      <section class="book-section mt-8" data-section data-section-type="purchased">
+        <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700">Your Shelf</p>
+            <h2 class="mt-1 text-3xl font-black tracking-tight text-slate-950">Purchased Books</h2>
+          </div>
+          <span class="inline-flex w-fit items-center rounded-full bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700">{{ purchased_books|length }} owned</span>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {% for book in purchased_books %}
+            <article
+              class="book-card group overflow-hidden rounded-[28px] border border-emerald-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl"
+              data-class="{{ book.class }}"
+              data-category="{{ book.category }}"
+              data-price="{{ 'free' if book.is_free else 'paid' }}"
+              data-owned="purchased"
+              data-search="{{ book.title|lower }} {{ book.description|lower }} {{ book.class|lower }} {{ book.category|lower }} {{ 'free' if book.is_free else 'paid' }} {{ book.price }}"
+            >
+              <div class="relative h-52 overflow-hidden bg-emerald-50">
+                {% if book.cover_url %}
+                  <img src="{{ book.cover_url }}" alt="{{ book.title }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
+                {% else %}
+                  <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-100 to-teal-100 text-6xl font-black text-emerald-700">{{ book.title[:1]|upper }}</div>
+                {% endif %}
+                <span class="absolute left-4 top-4 rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-white">Owned</span>
+              </div>
+
+              <div class="p-5">
+                <div class="mb-3 flex flex-wrap items-center gap-2">
+                  <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{{ book.category }}</span>
+                  <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Class {{ book.class }}</span>
+                </div>
+                <h3 class="text-xl font-black tracking-tight text-slate-950">{{ book.title }}</h3>
+                <p class="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{{ book.description }}</p>
+                <a href="/read/{{ book._id }}" class="mt-5 inline-flex h-11 w-full items-center justify-center rounded-2xl bg-emerald-600 px-4 text-sm font-bold text-white transition hover:bg-emerald-700">
+                  Read Now
+                </a>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% for class, books in grouped_books.items() %}
+      <section class="book-section mt-10" data-section>
+        <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.16em] text-sky-700">Class {{ class }}</p>
+            <h2 class="mt-1 text-3xl font-black tracking-tight text-slate-950">Recommended Reads</h2>
+          </div>
+          <span class="inline-flex w-fit items-center rounded-full bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700">{{ books|length }} books</span>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {% for book in books %}
+            <article
+              class="book-card group overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl"
+              data-class="{{ book.class }}"
+              data-category="{{ book.category }}"
+              data-price="{{ 'free' if book.is_free else 'paid' }}"
+              data-owned="not-purchased"
+              data-search="{{ book.title|lower }} {{ book.description|lower }} {{ book.class|lower }} {{ book.category|lower }} {{ 'free' if book.is_free else 'paid' }} {{ book.price }}"
+            >
+              <div class="relative h-52 overflow-hidden bg-sky-50">
+                {% if book.cover_url %}
+                  <img src="{{ book.cover_url }}" alt="{{ book.title }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
+                {% else %}
+                  <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-sky-100 to-indigo-100 text-6xl font-black text-sky-700">{{ book.title[:1]|upper }}</div>
+                {% endif %}
+                <div class="absolute left-4 top-4 flex flex-wrap gap-2">
+                  <span class="rounded-full bg-white/90 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-700 backdrop-blur">Available</span>
+                  {% if book.is_free %}
+                    <span class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-white">Free</span>
+                  {% else %}
+                    <span class="rounded-full bg-rose-600 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-white">&#8377;{{ book.price }}</span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="p-5">
+                <div class="mb-3 flex flex-wrap items-center gap-2">
+                  <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{{ book.category }}</span>
+                  <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Class {{ book.class }}</span>
+                </div>
+                <h3 class="text-xl font-black tracking-tight text-slate-950">{{ book.title }}</h3>
+                <p class="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{{ book.description }}</p>
+
+                <div class="mt-5 grid grid-cols-2 gap-2">
+                  {% if book.is_free %}
+                    <a href="/read/{{ book._id }}" class="inline-flex h-11 items-center justify-center rounded-2xl bg-emerald-600 px-4 text-sm font-bold text-white transition hover:bg-emerald-700">
+                      Read
+                    </a>
+                  {% else %}
+                    <button onclick="buyBook('{{ book._id }}', {{ book.price }})" class="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-600 px-4 text-sm font-bold text-white transition hover:bg-sky-700">
+                      Buy
+                    </button>
+                  {% endif %}
+                  <a href="/add_to_cart/{{ book._id }}" class="inline-flex h-11 items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 px-4 text-sm font-bold text-amber-700 transition hover:bg-amber-100">
+                    Cart
+                  </a>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+function buyBook(bookId, price) {
+  fetch(`/create_order/${bookId}`)
+    .then(res => {
+      if (res.status === 409) {
+        window.location.href = `/read/${bookId}`;
+        return null;
+      }
+      if (!res.ok) throw new Error("Unable to create payment order");
+      return res.json();
+    })
+    .then(data => {
+      if (!data) return;
+
+      new Razorpay({
+        key: "rzp_test_SheZZmsGV5qH4c",
+        amount: data.amount,
+        currency: "INR",
+        name: "Book Store",
+        description: "Purchase Book",
+        order_id: data.order_id,
+        handler(response) {
+          fetch("/verify_payment", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+              payment_id: response.razorpay_payment_id,
+              book_id: bookId
+            })
+          }).then(() => {
+            window.location.href = `/read/${bookId}`;
+          });
+        },
+        theme: { color: "#0284c7" }
+      }).open();
+    });
+}
+
+const $search = document.getElementById("searchFilter");
+const $class = document.getElementById("classFilter");
+const $category = document.getElementById("categoryFilter");
+const $price = document.getElementById("priceFilter");
+const $ownership = document.getElementById("ownershipFilter");
+const $clear = document.getElementById("clearFilters");
+const $empty = document.getElementById("emptyState");
+const $count = document.getElementById("visibleBookCount");
+
+function filterBooks() {
+  const q = $search.value.trim().toLowerCase();
+  let visible = 0;
+
+  document.querySelectorAll(".book-card").forEach(card => {
+    const ok = (!q || (card.dataset.search || "").includes(q))
+      && (!$class.value || $class.value === card.dataset.class)
+      && (!$category.value || $category.value === card.dataset.category)
+      && (!$price.value || $price.value === card.dataset.price)
+      && (!$ownership.value || $ownership.value === card.dataset.owned);
+
+    card.classList.toggle("hidden", !ok);
+    if (ok) visible++;
+  });
+
+  document.querySelectorAll("[data-section]").forEach(section => {
+    section.classList.toggle("hidden", !section.querySelectorAll(".book-card:not(.hidden)").length);
+  });
+
+  $empty.classList.toggle("hidden", visible !== 0);
+  $count.textContent = visible;
+}
+
+[$search].forEach(el => el.addEventListener("input", filterBooks));
+[$class, $category, $price, $ownership].forEach(el => el.addEventListener("change", filterBooks));
+
+$clear.addEventListener("click", () => {
+  [$search, $class, $category, $price, $ownership].forEach(el => el.value = "");
+  filterBooks();
+});
+
+filterBooks();
+</script>
+
+{% endblock %}

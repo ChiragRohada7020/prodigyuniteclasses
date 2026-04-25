@@ -1,0 +1,135 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+
+<div class="space-y-6">
+  <section class="relative overflow-hidden rounded-[30px] border border-white/60 bg-[linear-gradient(135deg,#0f172a_0%,#2563eb_44%,#22c55e_100%)] p-6 text-white shadow-[0_30px_80px_rgba(15,23,42,0.18)] sm:p-8">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.17),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.12),transparent_24%)]"></div>
+    <div class="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <div class="max-w-2xl">
+        <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100">Admin Upload</p>
+        <h1 class="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Add a new book with clean metadata, cover art, and PDF access.</h1>
+        <p class="mt-3 max-w-xl text-sm leading-7 text-emerald-50/90 sm:text-base">
+          This form is tuned for quick publishing while keeping class, category, price, and assets consistent.
+        </p>
+      </div>
+
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="rounded-3xl border border-white/20 bg-white/10 px-5 py-4 backdrop-blur">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-100">Cover Upload</p>
+          <p class="mt-2 text-2xl font-black">Optional</p>
+        </div>
+        <div class="rounded-3xl border border-white/20 bg-white/10 px-5 py-4 backdrop-blur">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-100">PDF Upload</p>
+          <p class="mt-2 text-2xl font-black">Required</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur sm:p-8">
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.16em] text-sky-700">Publishing Form</p>
+        <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Book details</h2>
+      </div>
+      <a href="/admin" class="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50">
+        Back to Dashboard
+      </a>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+      <div class="grid gap-6 lg:grid-cols-2">
+        <label class="block lg:col-span-2">
+          <span class="mb-2 block text-sm font-semibold text-slate-700">Book title</span>
+          <input name="title" required placeholder="Enter book title"
+            class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100">
+        </label>
+
+        <label class="block lg:col-span-2">
+          <span class="mb-2 block text-sm font-semibold text-slate-700">Description</span>
+          <textarea name="description" rows="5" placeholder="Short description for students"
+            class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100"></textarea>
+        </label>
+
+        <label class="block">
+          <span class="mb-2 block text-sm font-semibold text-slate-700">Class</span>
+          <select name="class" required
+            class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100">
+            <option value="">Select Class</option>
+            {% for c in classes %}
+              <option value="{{ c.name }}">{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label class="block">
+          <span class="mb-2 block text-sm font-semibold text-slate-700">Category</span>
+          <select name="category" required
+            class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100">
+            <option value="">Select Category</option>
+            {% for c in categories %}
+              <option value="{{ c.name }}">{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label class="block">
+          <span class="mb-2 block text-sm font-semibold text-slate-700">Price</span>
+          <input type="number" id="priceInput" name="price" min="0" placeholder="Enter price"
+            class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100">
+        </label>
+
+        <label class="flex h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">
+          <input type="checkbox" id="freeCheckbox" name="is_free" class="h-4 w-4 rounded border-slate-300 text-sky-600">
+          Free Book
+        </label>
+
+        <label class="block">
+          <span class="mb-2 block text-sm font-semibold text-slate-700">Book cover image</span>
+          <input type="file" name="cover_image" accept="image/*"
+            class="block w-full rounded-2xl border border-slate-200 bg-slate-50 text-sm text-slate-600 file:mr-4 file:rounded-l-2xl file:border-0 file:bg-slate-900 file:px-4 file:py-3 file:text-sm file:font-bold file:text-white hover:file:bg-slate-800">
+        </label>
+
+        <label class="block">
+          <span class="mb-2 block text-sm font-semibold text-slate-700">PDF file</span>
+          <input type="file" name="pdf" accept="application/pdf" required
+            class="block w-full rounded-2xl border border-slate-200 bg-slate-50 text-sm text-slate-600 file:mr-4 file:rounded-l-2xl file:border-0 file:bg-sky-600 file:px-4 file:py-3 file:text-sm file:font-bold file:text-white hover:file:bg-sky-700">
+        </label>
+      </div>
+
+      <div class="rounded-[24px] border border-emerald-100 bg-emerald-50 px-4 py-4 text-sm text-emerald-800">
+        Free books automatically set price to 0. Paid books should keep a numeric price before upload.
+      </div>
+
+      <button id="uploadButton" class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-700 px-5 text-sm font-bold text-white shadow-lg shadow-sky-200 transition hover:from-sky-700 hover:to-blue-800 disabled:cursor-not-allowed disabled:opacity-70">
+        <span id="uploadSpinner" class="hidden h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
+        Upload Book
+      </button>
+    </form>
+  </section>
+</div>
+
+<script>
+const freeCheckbox = document.getElementById("freeCheckbox");
+const priceInput = document.getElementById("priceInput");
+const uploadButton = document.getElementById("uploadButton");
+const uploadSpinner = document.getElementById("uploadSpinner");
+const uploadForm = document.querySelector("form");
+
+freeCheckbox.addEventListener("change", function() {
+    if (this.checked) {
+        priceInput.value = 0;
+        priceInput.disabled = true;
+    } else {
+        priceInput.disabled = false;
+    }
+});
+
+uploadForm.addEventListener("submit", () => {
+    uploadButton.disabled = true;
+    uploadSpinner.classList.remove("hidden");
+});
+</script>
+
+{% endblock %}

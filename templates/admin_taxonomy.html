@@ -1,0 +1,141 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+
+<div class="space-y-6">
+  <section class="relative overflow-hidden rounded-[30px] border border-white/60 bg-[linear-gradient(135deg,#0f172a_0%,#1d4ed8_52%,#38bdf8_100%)] p-6 text-white shadow-[0_30px_80px_rgba(15,23,42,0.18)] sm:p-8">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.14),transparent_24%)]"></div>
+    <div class="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <div class="max-w-2xl">
+        <p class="text-sm font-semibold uppercase tracking-[0.22em] text-sky-100">Admin Taxonomy</p>
+        <h1 class="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Keep your library structure sharp and easy to browse.</h1>
+        <p class="mt-3 max-w-xl text-sm leading-7 text-sky-50/90 sm:text-base">
+          Manage classes and categories from one clean place so the storefront filters stay organized for students.
+        </p>
+      </div>
+
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="rounded-3xl border border-white/20 bg-white/10 px-5 py-4 backdrop-blur">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-sky-100">Classes</p>
+          <p class="mt-2 text-3xl font-black">{{ classes|length }}</p>
+        </div>
+        <div class="rounded-3xl border border-white/20 bg-white/10 px-5 py-4 backdrop-blur">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-sky-100">Categories</p>
+          <p class="mt-2 text-3xl font-black">{{ categories|length }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+    <div class="space-y-6">
+      <section class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur">
+        <div class="mb-5">
+          <p class="text-sm font-semibold uppercase tracking-[0.18em] text-sky-700">New Class</p>
+          <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Add a class</h2>
+          <p class="mt-2 text-sm leading-6 text-slate-600">Use short, familiar names like 8, 9, 10 or Class 12.</p>
+        </div>
+
+        <form method="POST" action="/admin/add_class" class="space-y-4">
+          <label class="block">
+            <span class="mb-2 block text-sm font-semibold text-slate-700">Class name</span>
+            <input name="name" required placeholder="Example: 10"
+              class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100">
+          </label>
+          <button class="inline-flex h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-sky-600 to-blue-700 px-5 text-sm font-bold text-white shadow-lg shadow-sky-200 transition hover:from-sky-700 hover:to-blue-800">
+            Add Class
+          </button>
+        </form>
+      </section>
+
+      <section class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur">
+        <div class="mb-5">
+          <p class="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">New Category</p>
+          <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Add a category</h2>
+          <p class="mt-2 text-sm leading-6 text-slate-600">Keep labels broad and readable so they work well as user filters.</p>
+        </div>
+
+        <form method="POST" action="/admin/add_category" class="space-y-4">
+          <label class="block">
+            <span class="mb-2 block text-sm font-semibold text-slate-700">Category name</span>
+            <input name="name" required placeholder="Example: Science"
+              class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100">
+          </label>
+          <button class="inline-flex h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 text-sm font-bold text-white shadow-lg shadow-emerald-200 transition hover:from-emerald-600 hover:to-teal-700">
+            Add Category
+          </button>
+        </form>
+      </section>
+    </div>
+
+    <div class="space-y-6">
+      <section class="rounded-[28px] border border-white/70 bg-white/90 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur">
+        <div class="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.16em] text-sky-700">Library Levels</p>
+            <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Classes</h2>
+          </div>
+          <span class="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-sky-700">{{ classes|length }} total</span>
+        </div>
+
+        <div class="divide-y divide-slate-100">
+          {% for c in classes %}
+            <div class="flex items-center justify-between gap-3 px-6 py-4 transition hover:bg-slate-50/90">
+              <div class="flex items-center gap-3">
+                <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-sm font-black text-sky-700">{{ c.name[:2]|upper }}</span>
+                <div>
+                  <p class="text-sm font-bold text-slate-900">{{ c.name }}</p>
+                  <p class="text-xs text-slate-500">Used in catalog filters</p>
+                </div>
+              </div>
+              <a href="/admin/delete_class/{{ c._id }}" onclick="return confirm('Delete this class?')"
+                class="inline-flex h-10 items-center justify-center rounded-2xl border border-rose-200 px-4 text-xs font-bold uppercase tracking-[0.14em] text-rose-600 transition hover:bg-rose-50">
+                Delete
+              </a>
+            </div>
+          {% else %}
+            <div class="px-6 py-10 text-center">
+              <p class="text-lg font-bold text-slate-900">No classes yet</p>
+              <p class="mt-2 text-sm text-slate-500">Start by adding the class levels your students browse most often.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="rounded-[28px] border border-white/70 bg-white/90 shadow-[0_24px_70px_rgba(15,23,42,0.08)] backdrop-blur">
+        <div class="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700">Content Groups</p>
+            <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Categories</h2>
+          </div>
+          <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">{{ categories|length }} total</span>
+        </div>
+
+        <div class="divide-y divide-slate-100">
+          {% for c in categories %}
+            <div class="flex items-center justify-between gap-3 px-6 py-4 transition hover:bg-slate-50/90">
+              <div class="flex items-center gap-3">
+                <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-sm font-black text-emerald-700">{{ c.name[:2]|upper }}</span>
+                <div>
+                  <p class="text-sm font-bold text-slate-900">{{ c.name }}</p>
+                  <p class="text-xs text-slate-500">Supports discovery and segmentation</p>
+                </div>
+              </div>
+              <a href="/admin/delete_category/{{ c._id }}" onclick="return confirm('Delete this category?')"
+                class="inline-flex h-10 items-center justify-center rounded-2xl border border-rose-200 px-4 text-xs font-bold uppercase tracking-[0.14em] text-rose-600 transition hover:bg-rose-50">
+                Delete
+              </a>
+            </div>
+          {% else %}
+            <div class="px-6 py-10 text-center">
+              <p class="text-lg font-bold text-slate-900">No categories yet</p>
+              <p class="mt-2 text-sm text-slate-500">Add topics like Science, Math, English, or Revision to improve browsing.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

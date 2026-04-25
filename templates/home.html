@@ -60,12 +60,17 @@
           <p class="text-sm font-semibold uppercase tracking-[0.16em] text-sky-700">Explore</p>
           <h2 class="mt-1 text-2xl font-black tracking-tight text-slate-950">Find your next book</h2>
         </div>
-        <button id="clearFilters" type="button" class="inline-flex h-10 items-center rounded-2xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-          Reset
-        </button>
+        <div class="flex items-center gap-2">
+          <button id="mobileFilterToggle" type="button" class="inline-flex h-10 items-center rounded-2xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 md:hidden" aria-controls="filterPanel" aria-expanded="false">
+            Filters
+          </button>
+          <button id="clearFilters" type="button" class="inline-flex h-10 items-center rounded-2xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+            Reset
+          </button>
+        </div>
       </div>
 
-      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-[1.6fr_1fr_1fr_0.9fr_1fr]">
+      <div id="filterPanel" class="hidden grid gap-3 md:grid md:grid-cols-2 xl:grid-cols-[1.6fr_1fr_1fr_0.9fr_1fr]">
         <label class="block">
           <span class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Search</span>
           <input id="searchFilter" type="search" placeholder="Title, description, class, category..."
@@ -277,6 +282,20 @@ const $ownership = document.getElementById("ownershipFilter");
 const $clear = document.getElementById("clearFilters");
 const $empty = document.getElementById("emptyState");
 const $count = document.getElementById("visibleBookCount");
+const $mobileFilterToggle = document.getElementById("mobileFilterToggle");
+const $filterPanel = document.getElementById("filterPanel");
+const desktopMediaQuery = window.matchMedia("(min-width: 768px)");
+
+function syncFilterPanelByViewport() {
+  if (desktopMediaQuery.matches) {
+    $filterPanel.classList.remove("hidden");
+    $mobileFilterToggle?.setAttribute("aria-expanded", "true");
+    return;
+  }
+
+  const isOpen = $mobileFilterToggle?.getAttribute("aria-expanded") === "true";
+  $filterPanel.classList.toggle("hidden", !isOpen);
+}
 
 function filterBooks() {
   const q = $search.value.trim().toLowerCase();
@@ -309,6 +328,14 @@ $clear.addEventListener("click", () => {
   filterBooks();
 });
 
+$mobileFilterToggle?.addEventListener("click", () => {
+  const isOpen = $mobileFilterToggle.getAttribute("aria-expanded") === "true";
+  $mobileFilterToggle.setAttribute("aria-expanded", String(!isOpen));
+  syncFilterPanelByViewport();
+});
+
+desktopMediaQuery.addEventListener("change", syncFilterPanelByViewport);
+syncFilterPanelByViewport();
 filterBooks();
 </script>
 

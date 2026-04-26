@@ -65,6 +65,29 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs
     </main>
 
     <aside class="order-1 space-y-4 lg:order-2">
+      <section class="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm lg:hidden">
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            id="assistantToggleBtn"
+            type="button"
+            class="h-10 rounded-xl bg-slate-900 px-3 text-sm font-bold text-white transition"
+            aria-controls="assistantPanel"
+            aria-selected="true"
+          >
+            Ask Assistant
+          </button>
+          <button
+            id="notesToggleBtn"
+            type="button"
+            class="h-10 rounded-xl bg-slate-100 px-3 text-sm font-bold text-slate-700 transition"
+            aria-controls="notesPanel"
+            aria-selected="false"
+          >
+            Notes
+          </button>
+        </div>
+      </section>
+
       <section class="overflow-hidden rounded-[28px] border border-sky-100 bg-[linear-gradient(135deg,#e0f2fe_0%,#f0f9ff_52%,#eef2ff_100%)] p-5 shadow-lg shadow-sky-100/70">
         <div class="flex items-start gap-4">
           <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/85 text-lg font-black text-sky-700 shadow-sm">Hi</div>
@@ -80,7 +103,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs
         </div>
       </section>
 
-      <section class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
+      <section id="assistantPanel" class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
         <label class="block">
           <span class="mb-2 block text-sm font-semibold text-slate-700">Ask assistant</span>
           <textarea id="aiPrompt" rows="4" placeholder="Explain this page like I am revising tonight."
@@ -97,7 +120,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs
         </div>
       </section>
 
-      <section class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
+      <section id="notesPanel" class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
         <div class="flex items-center justify-between gap-3">
           <div>
             <h3 class="text-lg font-black tracking-tight text-slate-950">Notes</h3>
@@ -141,6 +164,41 @@ const noteStatus = document.getElementById("noteStatus");
 const downloadLink = document.getElementById("downloadLink");
 const noteField = document.getElementById("note");
 const notePageBadge = document.getElementById("notePageBadge");
+const assistantPanel = document.getElementById("assistantPanel");
+const notesPanel = document.getElementById("notesPanel");
+const assistantToggleBtn = document.getElementById("assistantToggleBtn");
+const notesToggleBtn = document.getElementById("notesToggleBtn");
+const desktopSidebarQuery = window.matchMedia("(min-width: 1024px)");
+
+function setReaderMobileTab(tab) {
+    const showAssistant = tab === "assistant";
+
+    assistantPanel.classList.toggle("hidden", !showAssistant);
+    notesPanel.classList.toggle("hidden", showAssistant);
+
+    assistantToggleBtn?.setAttribute("aria-selected", String(showAssistant));
+    notesToggleBtn?.setAttribute("aria-selected", String(!showAssistant));
+
+    assistantToggleBtn?.classList.toggle("bg-slate-900", showAssistant);
+    assistantToggleBtn?.classList.toggle("text-white", showAssistant);
+    assistantToggleBtn?.classList.toggle("bg-slate-100", !showAssistant);
+    assistantToggleBtn?.classList.toggle("text-slate-700", !showAssistant);
+
+    notesToggleBtn?.classList.toggle("bg-slate-900", !showAssistant);
+    notesToggleBtn?.classList.toggle("text-white", !showAssistant);
+    notesToggleBtn?.classList.toggle("bg-slate-100", showAssistant);
+    notesToggleBtn?.classList.toggle("text-slate-700", showAssistant);
+}
+
+function syncReaderPanelsByViewport() {
+    if (desktopSidebarQuery.matches) {
+        assistantPanel.classList.remove("hidden");
+        notesPanel.classList.remove("hidden");
+        return;
+    }
+    const notesActive = notesToggleBtn?.getAttribute("aria-selected") === "true";
+    setReaderMobileTab(notesActive ? "notes" : "assistant");
+}
 
 downloadLink.href = `/download_pdf/${bookId}`;
 
@@ -310,6 +368,11 @@ document.addEventListener("keydown", function(e) {
     if (e.key === "ArrowRight") nextPage();
     if (e.key === "ArrowLeft") prevPage();
 });
+
+assistantToggleBtn?.addEventListener("click", () => setReaderMobileTab("assistant"));
+notesToggleBtn?.addEventListener("click", () => setReaderMobileTab("notes"));
+desktopSidebarQuery.addEventListener("change", syncReaderPanelsByViewport);
+syncReaderPanelsByViewport();
 </script>
 
 {% endblock %}
